@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest
+from django.http import HttpRequest, Http404
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from .models import Genre, Movie
 from .forms import MovieForm
 from .models import UserProfile
@@ -121,6 +122,59 @@ def delete_movie(request: HttpRequest, movie_id):
         return render(request, '404.html')
 
 def profile_detail(request, username):
-    user = get_object_or_404(User, username=username)
-    profile = get_object_or_404(UserProfile, user=user)
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise Http404("Bunday foydalanuvchi topilmadi")
+
+    try:
+        profile = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        raise Http404("Profil topilmadi")
+
     return render(request, "moviesite/profile_detail.html", {"profile": profile})
+
+def register_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        password2 = request.POST.get("password2")
+
+        if password != password2:
+            messages.error(request, "Parollar mos emas!")
+            return redirect("register")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Bunday foydalanuvchi allaqachon mavjud!")
+            return redirect("register")
+
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+        messages.success(request, "Ro‘yxatdan o‘tdingiz, endi login qiling!")
+        return redirect("login")
+
+    return render(request, "moviesite/register.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"Xush kelibsiz, {username}!")
+            return redirect("main")
+        else:
+            messages.error(request, "Login yoki parol noto‘g‘ri!")
+            return redirect("login")
+
+    return render(request, "moviesite/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, "Siz tizimdan chiqdingiz.")
+    return redirect("main")

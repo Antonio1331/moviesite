@@ -1,43 +1,61 @@
 {% load static %}
 <header>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg bg-body">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-warning" href="{% url 'main' %}">
+        🎬 KinoSayt
+      </a>
       <button
-        data-mdb-collapse-init
         class="navbar-toggler"
         type="button"
-        data-mdb-target="#navbarExample01"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarExample01"
         aria-controls="navbarExample01"
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
-        <i class="fas fa-bars"></i>
+        <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarExample01">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item active">
-            <a class="nav-link" aria-current="page" href="{% url 'main' %}"
-              >Home</a
-            >
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'main' %}active{% endif %}" href="{% url 'main' %}">🏠 Bosh sahifa</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="https://t.me/mdnodx" target="_blank"
-              >Contact</a
-            >
+            <a class="nav-link" href="https://t.me/mdnodx" target="_blank">📩 Bog‘lanish</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'about' %}">About</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">ℹ️ Biz haqimizda</a>
           </li>
           {% if request.user.is_staff %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'add_movie' %}">Add_Movie</a>
+            <a class="nav-link" href="{% url 'add_movie' %}">➕ Film qo‘shish</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/admin/">Admin</a>
+            <a class="nav-link" href="/admin/">⚙️ Admin panel</a>
           </li>
           {% endif %}
         </ul>
+
+        <div class="d-flex align-items-center">
+          {% if user.is_authenticated %}
+            <span class="navbar-text me-3 fw-bold text-light">
+              👋 {{ user.username }}
+            </span>
+            <a
+              class="btn btn-outline-danger"
+              href="{% url 'logout' %}"
+              onclick="return confirm('Siz aniq tizimdan chiqmoqchimisiz?');"
+            >
+              🚪 Chiqish
+            </a>
+          {% else %}
+            <a class="btn btn-outline-light me-2" href="{% url 'login' %}">🔑 Kirish</a>
+            <a class="btn btn-warning fw-bold" href="{% url 'register' %}">📝 Ro‘yxatdan o‘tish</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </nav>
@@ -46,12 +64,12 @@
   <!-- Background image -->
   <div
     class="p-5 text-center bg-image"
-    style="background-image: url({% static 'img/justhd.png' %}); height: 400px"
+    style="background-image: url({% static 'img/justhd.png' %}); height: 400px; background-size: cover; background-position: center;"
   >
     <div class="mask" style="background-color: rgba(0, 0, 0, 0.6)">
       <div class="d-flex justify-content-center align-items-end h-100">
         <div class="text-white mb-5">
-          <h6 class="mb-2">Film qidirish</h6>
+          <h4 class="fw-bold mb-3">🎥 Film qidiring</h4>
           <form>
             <div class="input-group input-group-lg">
               <input
@@ -59,8 +77,8 @@
                 class="form-control"
                 placeholder="Film nomini yozing..."
               />
-              <button class="btn btn-outline-light" type="button">
-                Qidirish
+              <button class="btn btn-warning fw-bold" type="button">
+                🔍 Qidirish
               </button>
             </div>
           </form>
