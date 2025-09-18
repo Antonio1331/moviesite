@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, Http404
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from .models import Genre, Movie
 from .forms import MovieForm
@@ -178,3 +179,7 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Siz tizimdan chiqdingiz.")
     return redirect("main")
+
+@login_required(login_url='/login/')
+def profile(request):
+    return render(request, "moviesite/profile_detail.html")

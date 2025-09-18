@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from django.contrib.auth.models import Group
 from .models import Genre, Movie, Comment, UserProfile
 
 
@@ -57,6 +58,12 @@ class UserProfileAdmin(admin.ModelAdmin):
     get_avatar.short_description = "Avatar"
 
 
+
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.unregister(Group)
+
+@admin.register(Group)
+class CustomGroupAdmin(admin.ModelAdmin):
+    list_display = ("name",)
