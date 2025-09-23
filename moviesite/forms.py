@@ -1,7 +1,5 @@
 from django import forms
 from .models import Genre, Movie
-from django import forms
-from .models import Movie
 
 class MovieForm(forms.ModelForm):
     class Meta:
@@ -28,5 +26,19 @@ class MovieForm(forms.ModelForm):
             }),
             "image": forms.ClearableFileInput(attrs={
                 "class": "form-control"
+            })
+        }
+
+class GenreForm(forms.ModelForm):
+    class Meta:
+        model = Genre
+        fields = ['type']
+        labels = {
+            "type": "Janr Nomi"
+        }
+        widgets = {
+            "type": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Janr nomini kiriting"
             })
         }

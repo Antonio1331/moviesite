@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Genre, Movie, UserProfile
-from .forms import MovieForm
+from .forms import MovieForm, GenreForm
 
 
 class MainView(ListView):
@@ -26,6 +26,7 @@ class MainView(ListView):
         messages.info(self.request, "Xush kelibsiz! Asosiy sahifasidasiz.")
         return context
 
+
 class AboutView(TemplateView):
     template_name = "moviesite/about.html"
 
@@ -33,6 +34,7 @@ class AboutView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["title"] = "about"
         return context
+
 
 class MoviesByGenre(ListView):
     model = Movie
@@ -48,6 +50,7 @@ class MoviesByGenre(ListView):
         context["genres"] = Genre.objects.all()
         context["title"] = genre.type
         return context
+
 
 class MovieDetail(DetailView):
     model = Movie
@@ -66,27 +69,31 @@ class MovieDetail(DetailView):
         context["title"] = self.object.title
         return context
 
+
 class MovieCreate(UserPassesTestMixin, CreateView):
     model = Movie
     form_class = MovieForm
     template_name = "moviesite/add_movie.html"
+    success_url = reverse_lazy("main")
 
     def test_func(self):
         return self.request.user.is_staff
 
     def form_valid(self, form):
-        messages.success(self.request, "Maqola muvaffaqiyatli qo'shildi!")
+        messages.success(self.request, "Film muvaffaqiyatli qo'shildi!")
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Ma'lumotlar qo'shishda xatolik yuz berdi!")
+        messages.error(self.request, "Film qo'shishda xatolik yuz berdi!")
         return super().form_invalid(form)
+
 
 class MovieUpdate(UserPassesTestMixin, UpdateView):
     model = Movie
     form_class = MovieForm
     template_name = "moviesite/update_movie.html"
     pk_url_kwarg = "movie_id"
+    success_url = reverse_lazy("main")
 
     def test_func(self):
         return self.request.user.is_staff
@@ -96,8 +103,9 @@ class MovieUpdate(UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Ma'lumotlar yangilashda xatolik yuz berdi!")
+        messages.error(self.request, "Film yangilashda xatolik yuz berdi!")
         return super().form_invalid(form)
+
 
 class MovieDelete(UserPassesTestMixin, DeleteView):
     model = Movie
@@ -110,6 +118,57 @@ class MovieDelete(UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Film muvaffaqiyatli o'chirildi!")
+        return super().delete(request, *args, **kwargs)
+
+
+class GenreCreate(UserPassesTestMixin, CreateView):
+    model = Genre
+    form_class = GenreForm
+    template_name = "moviesite/add_genre.html"
+    success_url = reverse_lazy("main")
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def form_valid(self, form):
+        messages.success(self.request, "Janr muvaffaqiyatli qo'shildi!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Janr qo'shishda xatolik yuz berdi!")
+        return super().form_invalid(form)
+
+
+class GenreUpdate(UserPassesTestMixin, UpdateView):
+    model = Genre
+    form_class = GenreForm
+    template_name = "moviesite/update_genre.html"
+    pk_url_kwarg = "genre_id"
+    success_url = reverse_lazy("main")
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def form_valid(self, form):
+        messages.success(self.request, "Janr muvaffaqiyatli yangilandi!")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Janr yangilashda xatolik yuz berdi!")
+        return super().form_invalid(form)
+
+
+class GenreDelete(UserPassesTestMixin, DeleteView):
+    model = Genre
+    template_name = "moviesite/delete_genre.html"
+    pk_url_kwarg = "genre_id"
+    success_url = reverse_lazy("main")
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Janr muvaffaqiyatli o'chirildi!")
         return super().delete(request, *args, **kwargs)
 
 
@@ -126,6 +185,7 @@ class ProfileDetail(DetailView):
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "moviesite/profile_detail.html"
     login_url = "/login/"
+
 
 def register_view(request):
     if request.method == "POST":
@@ -165,7 +225,6 @@ def login_view(request):
             return redirect("login")
 
     return render(request, "moviesite/login.html")
-
 
 def logout_view(request):
     logout(request)
