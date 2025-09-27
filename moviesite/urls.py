@@ -1,8 +1,9 @@
-from django.urls import path
+from django.conf import settings
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.MainView.as_view(), name='main'),
+    path('', views.movie_list, name='main'),
     path('about/', views.AboutView.as_view(), name='about'),
     path('genre/<int:genre_id>/', views.MoviesByGenre.as_view(), name='movies_by_genre'),
     path('movie/<int:movie_id>/', views.MovieDetail.as_view(), name='movie_detail'),
@@ -18,3 +19,9 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ]

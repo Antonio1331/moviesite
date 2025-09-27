@@ -5,6 +5,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Genre, Movie, UserProfile
@@ -230,3 +231,10 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Siz tizimdan chiqdingiz.")
     return redirect("main")
+
+def movie_list(request):
+    movies = Movie.objects.all().order_by('-id')
+    paginator = Paginator(movies, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'moviesite/main.html', {'page_obj': page_obj})
